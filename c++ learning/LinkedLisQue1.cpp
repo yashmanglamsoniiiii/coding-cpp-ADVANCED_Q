@@ -209,30 +209,168 @@ void add_end( int value){
 
                       //RECURSIVE WAY : METHOD 2:-
 
-Node* rev_ll(Node* &head){
+
+                      //wrong:
+// Node* rev_ll(Node* &head){
+//     Node* pre=NULL;
+//     if (head==NULL){
+//         head=pre;
+//         return head;
+//     }
+//     head->next=pre;
+//     pre=head;// pre ko aage badaya
+//     rev_ll(head->next); // head ko bhi aage badaya.
+// }
+
+                 // right: urvi mam:
+// Node* revllrecur( Node* &head){
+
+//     // base case: 
+//     if (head==NULL || head->next==NULL){ // empty or single node ll also last case cater.
+//         return head;
+//     }
+//     //recursive call:
+//     Node* new_head= revllrecur(head->next);// reverse rest of ll
+//     head->next->next=head; // make next node point to current head node (made a pre pointer)
+//     head->next=NULL;    // disconnect curr. node from rest next wla ( next poi. toda )
+//     return new_head;
+// }
+
+// 5. REVERSING K NODES IN A LINKED LIST *****
+                      //URVI MAM:-
+Node* reversekLL(Node* &head,int k){
     Node* pre=NULL;
-    if (head==NULL){
-        head=pre;
-        return head;
+    Node* curr=head;
+    int counter=0; 
+    while(curr!=NULL && counter <k ){
+        Node* next=curr->next;
+        curr->next=pre;
+
+        // aage badao
+        pre=curr;
+        curr=next;
+        counter++;
     }
-    head->next=pre;
-    pre=head;// pre ko aage badaya
-    rev_ll(head->next); // head ko bhi aage badaya.
+    if (curr!=NULL){
+        Node* new_head=reversekLL(curr, k);
+        head->next=new_head;
+    }
+    return pre;
 }
+
+             //QUES 6 VERY IMP.-> Write a program to implement linked list which has an insert function. 
+                    // Insert function should place the node at sorted position in the linked list.  
+                        //100% correct.
+    void insertSorted(Node* &head, int value){
+        Node* newNode=new Node(value);
+        if (head==NULL){
+            head=newNode;
+            return;
+        }else{
+        Node* temp=head;
+        Node* tail=head;
+        while(tail->next!=NULL){
+            tail=tail->next;
+        }
+        // three cases :
+        // head ke aaage , tail ke peeche , kahin beech mei
+        if (newNode->val<=head->val){
+            newNode->next=head;
+            head=newNode;
+        }else if (tail->val<=newNode->val){
+            tail->next=newNode;
+            tail=newNode;
+        }else{
+        while(temp->next!=NULL){  // head and tail ke beech mei
+
+            //temp agar last node (tail par ) aaya to loop ke bahar no checking therefore no need for temp->next->next
+            // varna second last node will not checked.
+
+
+            //temp->next so if tail par temp to tail->next-val [crash code].
+            if  (temp->next->val>newNode->val && temp->val<=newNode->val){
+                Node* temp2=temp->next;
+                newNode->next=temp2;
+                temp->next=newNode;
+                break;
+            }
+            temp=temp->next;
+        }
+
+        }
+
+        }
+    }
+    // bugs:
+    // 1. most imp ->single node case.
+    // Your approach splits into 3 cases (before head, after tail, between). 
+    // That's OK. But the way you handle the between case depends on while(temp->next != NULL). 
+    // If the list is length 1 (so temp->next == NULL) 
+    // but the new node should be inserted between head and tail (which are the same node),
+    //  the loop is skipped and nothing happens.
+
+    //2.
+    // You used temp->next->val > newNode->val && temp->val <= newNode->val. 
+    // That condition is okay for many middle insertions but it assumes there is a '"temp->next."' 
+    // If temp->next is NULL, you never check insertion point.
+// temp = 1 (ok)
+// temp = 5 (ok)
+// temp = 10 (tail) → now temp->next == NULL, so loop stops immediately.
+// And since nothing was inserted, the function exits without adding the new node.
+
+
+
+            //another version of this question's answer.[OPTIMIZED]
+
+    void insertSorted_2(Node* &head, int value) {
+    Node* newNode = new Node(value);
+    if (head == NULL || value < head->val) {
+        newNode->next = head;
+        head = newNode;
+        return;
+    }
+    Node* temp = head;
+    while (temp->next != NULL && temp->next->val < value) {//equals to wala case bhi handled
+        temp = temp->next;
+    }
+    newNode->next = temp->next;
+    temp->next = newNode;
+}
+
+
+
 int main(){
-    linkedlist ll;
+    linkedlist ll,ll1;
         ll.add_begin(1);
         ll.add_end(2);
         ll.add_end(2);
         ll.add_end(3);
         ll.add_end(3);
         ll.display();
+   
+        // que 6
+         insertSorted(ll1.head,5);
+        // insertSorted(ll1.head,3);
+        // insertSorted(ll1.head,10);
+        // insertSorted(ll1.head,1);
+        // insertSorted(ll1.head,2);
+        // insertSorted(ll1.head,3);
+
+    //     ll1.display();
+
+    //<--------------->
 
         // del_alternate(ll.head);
         // del_duplicates(ll.head);
         // ll.display();
         // prtreversell(ll.head);
-        ll.head=rev_ll(ll.head);  
+        // ll.head=rev_ll(ll.head); 
+        //ll.head=revllrecur(ll.head);// aisa islye as revllrecur only gives newhead
+                                    // to if => revllrecur(ll.head) then display 
+                                    // output 1-> head. (here head still 1 only)
+                                    // ll.head=revllrecur(ll.head) then display
+                                    // output REVERSED LL. (head updated)
+        ll.head=reversekLL(ll.head, 2);
         ll.display();
 return 0;
 }
